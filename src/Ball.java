@@ -2,17 +2,25 @@ import java.awt.Color;
 import biuoop.DrawSurface;
 import biuoop.GUI;
 import biuoop.Sleeper;
+import org.w3c.dom.css.Rect;
 
 public class Ball {
     private int radius;
     private Point center;
     private java.awt.Color color;
     private Velocity vel;
+    private GameEnvironment gameEnv;
     // constructors
     public Ball(Point center, int r, java.awt.Color color) {
         this.center = center;
         this.radius = r;
         this.color = color;
+    }
+    public Ball(Point center, int r, java.awt.Color color, GameEnvironment gameEnvironment) {
+        this.center = center;
+        this.radius = r;
+        this.color = color;
+        this.gameEnv = gameEnvironment;
     }
     public Ball(double x, double y, int r, java.awt.Color color){
         this.center = new Point(x,y);
@@ -44,13 +52,15 @@ public class Ball {
     }
 
     public void moveOneStep() {
-        if(center.getX()+ radius >= 200 || center.getX()- radius <=0){
-            setVelocity(-vel.getDx(),vel.getDy());
+        double nextX = center.getX() + vel.getDx();
+        double nextY = center.getY() + vel.getDy();
+        Line traj = new Line(center, new Point(nextX,nextY));
+        CollisionInfo collInfo = gameEnv.getClosestCollision(traj);
+        if(collInfo != null) {
+            onHit(collInfo, nextX, nextY);
+        } else {
+            center = new Point(nextX, nextY);
         }
-        if(center.getY()+ radius >= 400 || center.getY()- radius <= 0){
-            setVelocity(vel.getDx(),-vel.getDy());
-        }
-        this.center = this.getVelocity().applyToPoint(this.center);
     }
     public void moveOneStep(int right, int bottom, int left, int top) {
         double nextX = center.getX() + vel.getDx();
@@ -84,4 +94,21 @@ public class Ball {
         surface.fillCircle(this.getX(), this.getY(), this.radius);
     };
 
+    private void onHit(CollisionInfo colInfo, double nextX, double nextY) {
+        Point collisionPoint = colInfo.collisionPoint();
+        double epsilon = 0.000001d;
+        double x,y, colX, colY;
+        x = center.getX();
+        y = center.getY();
+        colX = collisionPoint.getX();
+        colY = collisionPoint.getY();
+        boolean isXHit = (x+radius + epsilon ) == colX || (x-radius) == colX;
+        boolean isYHit = (y+radius + epsilon) == colY || (y-radius) == colY;
+        if(isXHit && isYHit){
+            vel = colInfo.collisionObject().hit(collisionPoint, vel);
+            center = new Point(x+vel.getDx(), y+vel.getDy());
+        } else {
+            center = new Point(nextX, nextY);
+        }
+    }
 }
