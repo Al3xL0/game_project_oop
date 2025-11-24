@@ -1,0 +1,37 @@
+import org.w3c.dom.css.Rect;
+
+import java.util.ArrayList;
+
+public class GameEnvironment {
+
+    private ArrayList<Collidable> collidables = new ArrayList<Collidable>();
+    // add the given collidable to the environment.
+    public void addCollidable(Collidable c) {
+        collidables.add(c);
+    }
+
+    // Assume an object moving from line.start() to line.end().
+    // If this object will not collide with any of the collidables
+    // in this collection, return null. Else, return the information
+    // about the closest collision that is going to occur.
+    public CollisionInfo getClosestCollision(Line trajectory) {
+        ArrayList<Point> points = new ArrayList<Point>();
+        ArrayList<Rectangle> rectangles = new ArrayList<Rectangle>();
+        Point res = null;
+        Collidable colRes = null;
+        double min = Double.POSITIVE_INFINITY;
+        for(Collidable c : collidables) {
+            ArrayList<Point> pointsRec = (ArrayList<Point>) c.getCollisionRectangle().intersectionPoints(trajectory);
+            if(pointsRec != null) {
+                for(Point point : pointsRec){
+                    if(trajectory.start().distance(point)<min) {
+                        min=trajectory.start().distance(point);
+                        colRes = c;
+                    }
+                }
+            }
+        }
+        return new CollisionInfo(trajectory, colRes);
+    }
+
+}

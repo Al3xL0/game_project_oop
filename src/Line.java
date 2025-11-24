@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class Line {
     private Point start;
     private Point end;
@@ -42,6 +44,21 @@ public class Line {
         }
     }
 
+    // If this line does not intersect with the rectangle, return null.
+    // Otherwise, return the closest intersection point to the
+    // start of the line.
+    public Point closestIntersectionToStartOfLine(Rectangle rect) {
+        List<Point> points = rect.intersectionPoints(this);
+        double min = Double.POSITIVE_INFINITY;
+        Point res = null;
+        for(Point point : points) {
+            if(min>start.distance(point)) {
+                min = start.distance(point);
+                res = new Point(point.getX(),point.getY());
+            }
+        }
+        return res;
+    }
     // Return the length of the line
     public double length() {
         return start.distance(end);

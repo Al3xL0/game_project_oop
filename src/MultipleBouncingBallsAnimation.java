@@ -34,7 +34,7 @@ public class MultipleBouncingBallsAnimation {
         Sleeper sleeper = new Sleeper();
         float r,g,b;
         Ball[] ballArr = new Ball[balls.size()];
-        double speed = rand.nextDouble(100, 300);
+        double speed = rand.nextDouble(600, 900);
         for(int i = 0; i<balls.size(); i++ ){
             r = rand.nextFloat();
             g = rand.nextFloat();
@@ -49,9 +49,9 @@ public class MultipleBouncingBallsAnimation {
                 );
             }
             if(ballArr[i].getSize() >= 50) {
-                ballArr[i].setVelocity(90,speed/50);
+                ballArr[i].setVelocity(360/50,speed/50);
             } else {
-                ballArr[i].setVelocity(90, speed/ballArr[i].getSize());
+                ballArr[i].setVelocity(360/ballArr[i].getSize(), speed/ballArr[i].getSize());
             }
         }
         while (true) {
