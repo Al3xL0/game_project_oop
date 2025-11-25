@@ -35,6 +35,7 @@ public class Rectangle {
         for(int i=0; i<lines.length; i++) {
             Point point = line.intersectionWith(lines[i]);
             if(point != null) {
+
                 points.add(point);
             }
         }
@@ -67,8 +68,9 @@ public class Rectangle {
         return lines;
     }
     private void initCorners() {
-        upperLeft = new Point(upperLeft.getX()-width, upperRight.getY());
-        downRight = new Point(upperRight.getX(), upperLeft.getY()-height);
+
+        upperRight = new Point(upperLeft.getX()+width, upperLeft.getY());
+        downRight = new Point(upperRight.getX(), upperRight.getY()-height);
         downLeft = new Point(upperLeft.getX(), upperLeft.getY()-height);
     }
 }

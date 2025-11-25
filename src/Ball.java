@@ -52,15 +52,41 @@ public class Ball {
     }
 
     public void moveOneStep() {
-        double nextX = center.getX() + vel.getDx();
-        double nextY = center.getY() + vel.getDy();
-        Line traj = new Line(center, new Point(nextX,nextY));
-        CollisionInfo collInfo = gameEnv.getClosestCollision(traj);
-        if(collInfo != null) {
-            onHit(collInfo, nextX, nextY);
-        } else {
-            center = new Point(nextX, nextY);
+        // אם אין מהירות עדיין, אין מה לזוז
+        if (this.vel == null) {
+            return;
         }
+
+        // הנקודה שהכדור היה מגיע אליה בלי התנגשות
+        Point projectedCenter = this.vel.applyToPoint(this.center);
+
+        // המסלול מהמרכז הנוכחי לנקודה הבאה
+        Line traj = new Line(this.center, projectedCenter);
+
+        // בודקים אם יש אובייקט בדרך
+        CollisionInfo collInfo = gameEnv.getClosestCollision(traj);
+
+        // אין התנגשות – זזים כרגיל
+        if (collInfo == null) {
+            System.out.println("hey");
+            this.center = projectedCenter;
+            return;
+        }
+
+        // יש התנגשות – מטפלים בה
+        Point collisionPoint = collInfo.collisionPoint();
+
+        double dx = this.vel.getDx();
+        double dy = this.vel.getDy();
+        double epsilon = 0.0001; // מספר קטן מאוד
+
+        // ממקמים את המרכז קצת לפני נקודת הפגיעה (בכיוון ההפוך לצעד)
+        double newX = collisionPoint.getX() - dx * epsilon;
+        double newY = collisionPoint.getY() - dy * epsilon;
+        this.center = new Point(newX, newY);
+
+        // מעדכנים מהירות לפי האובייקט שפגענו בו
+        this.vel = collInfo.collisionObject().hit(collisionPoint, this.vel);
     }
     public void moveOneStep(int right, int bottom, int left, int top) {
         double nextX = center.getX() + vel.getDx();
@@ -94,21 +120,4 @@ public class Ball {
         surface.fillCircle(this.getX(), this.getY(), this.radius);
     };
 
-    private void onHit(CollisionInfo colInfo, double nextX, double nextY) {
-        Point collisionPoint = colInfo.collisionPoint();
-        double epsilon = 0.000001d;
-        double x,y, colX, colY;
-        x = center.getX();
-        y = center.getY();
-        colX = collisionPoint.getX();
-        colY = collisionPoint.getY();
-        boolean isXHit = (x+radius + epsilon ) == colX || (x-radius) == colX;
-        boolean isYHit = (y+radius + epsilon) == colY || (y-radius) == colY;
-        if(isXHit && isYHit){
-            vel = colInfo.collisionObject().hit(collisionPoint, vel);
-            center = new Point(x+vel.getDx(), y+vel.getDy());
-        } else {
-            center = new Point(nextX, nextY);
-        }
-    }
 }
