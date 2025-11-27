@@ -12,7 +12,7 @@ public class Ball {
     private java.awt.Color color;
     private Velocity vel;
     private GameEnvironment gameEnv;
-    private Collidable lastCollision;
+    private Point lastCollision;
     // constructors
     public Ball(Point center, int r, java.awt.Color color) {
         this.center = center;
@@ -55,71 +55,58 @@ public class Ball {
     }
 
     public void moveOneStep() {
-        final double EPSILON = 1e-3;
+        final double EPSILON = 1e-1;
 
         if (this.vel == null) {
             return;
         }
 
         Point projectedCenter = this.vel.applyToPoint(this.center);
-
         Line traj = new Line(this.center, projectedCenter);
-
         CollisionInfo collInfo = gameEnv.getClosestCollision(traj);
 
         if (collInfo != null) {
-            if (lastCollision == collInfo.collisionObject()) {
-                this.center = projectedCenter;
-                return;
-            }
             Point collPoint = collInfo.collisionPoint();
-            double dx = vel.getDx();
-            double dy = vel.getDy();
-            double xDir = 0, yDir = 0;
+            System.out.println("col point: " + collPoint.getX() + ", " + collPoint.getY());
+
             Rectangle rect = collInfo.collisionObject().getCollisionRectangle();
-            Line[] edges = rect.getLines();
-
-            boolean hitTopOrBottom =
-                    edges[0].isPointInLine(collPoint) ||
-                            edges[1].isPointInLine(collPoint);
-
-            boolean hitLeftOrRight =
-                    edges[2].isPointInLine(collPoint) ||
-                            edges[3].isPointInLine(collPoint);
-
-
-            double blockLeft   = rect.getUpperLeft().getX();
-            double blockRight  = blockLeft + rect.getWidth();
-            double blockTop    = rect.getUpperLeft().getY();
+            double blockLeft = rect.getUpperLeft().getX();
+            double blockRight = blockLeft + rect.getWidth();
+            double blockTop = rect.getUpperLeft().getY();
             double blockBottom = blockTop + rect.getHeight();
 
             double ballX = collPoint.getX();
             double ballY = collPoint.getY();
 
-            if (hitTopOrBottom) {
-                if (ballY < blockTop) {
-                    yDir = -(radius + EPSILON);
-                } else {
-                    yDir = radius + EPSILON;
-                }
+            // Calculate distance from collision point to each edge
+            double distToLeft = Math.abs(ballX - blockLeft);
+            double distToRight = Math.abs(ballX - blockRight);
+            double distToTop = Math.abs(ballY - blockTop);
+            double distToBottom = Math.abs(ballY - blockBottom);
+
+            // Find which edge was hit (closest distance)
+            double minDist = Math.min(Math.min(distToLeft, distToRight),
+                    Math.min(distToTop, distToBottom));
+
+            double xDir = 0, yDir = 0;
+
+            if (minDist == distToTop) {
+                yDir = -(radius + EPSILON);
+            } else if (minDist == distToBottom) {
+                yDir = radius + EPSILON;
+            } else if (minDist == distToLeft) {
+                xDir = -(radius + EPSILON);
+            } else if (minDist == distToRight) {
+                xDir = radius + EPSILON;
             }
 
-            if (hitLeftOrRight) {
-                if (ballX < blockLeft) {
-                    xDir = -(radius + EPSILON);
-                } else {
-                    xDir = radius + EPSILON;
-                }
-            }
-
-            lastCollision = collInfo.collisionObject();
             this.center = new Point(collPoint.getX() + xDir, collPoint.getY() + yDir);
             this.vel = collInfo.collisionObject().hit(collPoint, vel);
             System.out.println("vel" + vel.getDx() + "," + vel.getDy());
+
         } else {
             this.center = projectedCenter;
         }
-
     }
 
 

@@ -20,17 +20,39 @@ public class Block implements Collidable {
     }
     @Override
     public Velocity hit(Point collisionPoint, Velocity currentVelocity) {
-        double dx,dy;
-        dx = currentVelocity.getDx();
-        dy = currentVelocity.getDy();
-        Line lines[] = shape.getLines();
-        if(lines[0].isPointInLine(collisionPoint) || lines[1].isPointInLine(collisionPoint)) {
-            dy = -dy;
+        Rectangle rect = this.getCollisionRectangle();
+        double blockLeft = rect.getUpperLeft().getX();
+        double blockRight = blockLeft + rect.getWidth();
+        double blockTop = rect.getUpperLeft().getY();
+        double blockBottom = blockTop + rect.getHeight();
+
+        double ballX = collisionPoint.getX();
+        double ballY = collisionPoint.getY();
+
+        // Calculate distance to each edge
+        double distToLeft = Math.abs(ballX - blockLeft);
+        double distToRight = Math.abs(ballX - blockRight);
+        double distToTop = Math.abs(ballY - blockTop);
+        double distToBottom = Math.abs(ballY - blockBottom);
+
+        // Find closest edge - that's which one was hit
+        double minDist = Math.min(Math.min(distToLeft, distToRight),
+                Math.min(distToTop, distToBottom));
+
+            // Use velocity direction as tiebreaker for corners
+        if (Math.abs(distToLeft - distToRight) < 1e-3) {
+            // Hitting left or right - reverse X
+            return new Velocity(-currentVelocity.getDx(), currentVelocity.getDy());
+        } else if (Math.abs(distToTop - distToBottom) < 1e-3) {
+            // Hitting top or bottom - reverse Y
+            return new Velocity(currentVelocity.getDx(), -currentVelocity.getDy());
+        } else if (minDist == distToLeft || minDist == distToRight) {
+            // Hit left or right wall - reverse X velocity
+            return new Velocity(-currentVelocity.getDx(), currentVelocity.getDy());
+        } else {
+            // Hit top or bottom wall - reverse Y velocity
+            return new Velocity(currentVelocity.getDx(), -currentVelocity.getDy());
         }
-        if(lines[2].isPointInLine(collisionPoint) || lines[3].isPointInLine(collisionPoint)) {
-            dx = -dx;
-        }
-        return new Velocity(dx,dy);
     }
 
     public void drawOn(DrawSurface d) {

@@ -27,11 +27,15 @@ public class GameEnvironment {
             ArrayList<Point> pointsRec = (ArrayList<Point>) c.getCollisionRectangle().intersectionPoints(trajectory);
             if(pointsRec != null) {
                 for(Point point : pointsRec){
-                    if(trajectory.start().distance(point)<min) {
-                        min=trajectory.start().distance(point);
-                        colRes = c;
-                        res= point;
-                    }
+                double distToStart = trajectory.start().distance(point);
+                double trajectoryLength = trajectory.length();
+                
+                // Point must be between start and end of trajectory
+                if(distToStart > 1e-6 && distToStart < trajectoryLength && distToStart < min) {
+                    min = distToStart;
+                    colRes = c;
+                    res = point;
+                }
                 }
             }
         }

@@ -112,7 +112,7 @@ public class Line {
             }
         }
         else {
-            if(point.getY()>start.getY() || point.getX()<end.getY()) {
+            if(point.getY()>start.getY() || point.getY()<end.getY()) {
                 ans =false;
             }
         }
@@ -121,24 +121,38 @@ public class Line {
     // Returns the intersection point if the lines intersect,
     // and null otherwise.
     public Point intersectionWith(Line other) {
-        if(this.slope == other.getSlope()) {
-            return null ;
-        }
-        Point res;
-        double x, y;
-        x = (other.getB() - this.b) / (this.slope - other.getSlope());
 
-        y = this.slope * x + this.b;
-        res = new Point(x, y);
-        boolean checkX = this.isXup ?
-                (this.end.getX() >= x && this.start.getX() <= x) : (this.end.getX() <= x && this.start.getX() >= x);
-        boolean checkY = this.isYup ?
-                (this.end.getY() >= y && this.start.getY() <= y) : (this.end.getY()<=y && this.start.getY()>=y);
-        if (checkX && checkY) {
-            return res;
+        // אם שניהם אנכיים או מקבילים
+        if (this.isVertical() && other.isVertical()) return null;
+
+        // שניהם לא אנכיים ויש להם אותו שיפוע → מקבילים
+        if (!this.isVertical() && !other.isVertical() &&
+                this.slope == other.getSlope()) return null;
+
+        double x, y;
+
+        if (this.isVertical()) {
+            x = this.start.getX();
+            y = other.slope * x + other.b;
         }
+        else if (other.isVertical()) {
+            x = other.start.getX();
+            y = this.slope * x + this.b;
+        }
+        else {
+            x = (other.b - this.b) / (this.slope - other.slope);
+            y = this.slope * x + this.b;
+        }
+
+        Point p = new Point(x, y);
+
+        if (this.isOnSegment(p) && other.isOnSegment(p)) {
+            return p;
+        }
+
         return null;
     }
+
 
     // equals -- return true is the lines are equal, false otherwise
     public boolean equals(Line other) {
@@ -161,4 +175,13 @@ public class Line {
 
     }
 
+    private boolean isVertical() {
+        return start.getX() == end.getX();
+    }
+    private boolean isOnSegment(Point p) {
+        return p.getX() >= Math.min(start.getX(), end.getX()) &&
+                p.getX() <= Math.max(start.getX(), end.getX()) &&
+                p.getY() >= Math.min(start.getY(), end.getY()) &&
+                p.getY() <= Math.max(start.getY(), end.getY());
+    }
 }
