@@ -1,5 +1,4 @@
 import biuoop.DrawSurface;
-import org.w3c.dom.css.Rect;
 
 import java.util.ArrayList;
 
@@ -47,6 +46,7 @@ public class GameEnvironment {
     public void drawWorld(DrawSurface d){
         for(Collidable collidable : collidables) {
             collidable.drawOn(d);
+
         }
     }
 }

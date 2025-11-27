@@ -1,31 +1,68 @@
 import biuoop.DrawSurface;
 import biuoop.GUI;
-
+import biuoop.Sleeper;
 import java.awt.*;
 
 public class Game {
-    public static void main(String[] args) {
-            GUI gui = new GUI("title", 1800, 1700);
-        GameEnvironment gameEnv = new GameEnvironment();
-        Ball ball = new Ball(new Point(140/4,900/4),10, Color.black, gameEnv);
+    private SpriteCollection sprites;
+    private GameEnvironment gameEnv;
+    private Sleeper sleeper;
+    private GUI gui;
+    public Game() {
+        initialize();
+    }
+    public void addCollidable(Collidable c) {
+        gameEnv.addCollidable(c);
+    }
+    public void addSprite(Sprite s) {
+        sprites.addSprite(s);
+    }
+
+    // Initialize a new game: create the Blocks and Ball (and Paddle)
+    // and add them to the game.
+    public void initialize() {
+        this.gui = new GUI("title", 800 , 600);
+        this.gameEnv = new GameEnvironment();
+        this.sprites = new SpriteCollection();
+        Ball ball = new Ball(new Point(140/4,140/4),10, Color.black, gameEnv);
         ball.setVelocity(new Velocity(2,2));
         generateBorders(gameEnv);
-        while(true){
+        Block block = new Block(new Rectangle(new Point(200,500),200,20));
+        ball.addToGame(this);
+        block.addToGame(this);
+        this.sleeper = new Sleeper();
+    }
+
+    // Run the game -- start the animation loop.
+    public void run() {
+        //...
+        int framesPerSecond = 60;
+        int millisecondsPerFrame = 1000 / framesPerSecond;
+        while (true) {
+            long startTime = System.currentTimeMillis(); // timing
+
             DrawSurface d = gui.getDrawSurface();
-            gameEnv.drawWorld(d);
-            ball.drawOn(d);
+            this.sprites.drawAllOn(d);
             gui.show(d);
-            ball.moveOneStep();
+            this.sprites.notifyAllTimePassed();
+
+            // timing
+            long usedTime = System.currentTimeMillis() - startTime;
+            long milliSecondLeftToSleep = millisecondsPerFrame - usedTime;
+            if (milliSecondLeftToSleep > 0) {
+                sleeper.sleepFor(milliSecondLeftToSleep);
+            }
         }
     }
-    private static void generateBorders(GameEnvironment gameEnv) {
+
+    private void generateBorders(GameEnvironment gameEnv) {
         Block[] borders = new Block[4];
-        borders[0] = new Block(new Rectangle(new Point(0,0),500 ,20), Color.black);
-        borders[1] = new Block(new Rectangle(new Point(0,0),20,1000), Color.black);
-        borders[2] = new Block(new Rectangle(new Point(0,980),500,20),Color.black);
-        borders[3] = new Block(new Rectangle(new Point(480,0),20,1000), Color.black);
+        borders[0] = new Block(new Rectangle(new Point(0,0),800 ,20), Color.black);
+        borders[1] = new Block(new Rectangle(new Point(0,0),20,600), Color.black);
+        borders[2] = new Block(new Rectangle(new Point(0,580),800,20),Color.black);
+        borders[3] = new Block(new Rectangle(new Point(780,0),20,600), Color.black);
         for(Block block : borders) {
-            gameEnv.addCollidable(block);
+            block.addToGame(this);
         }
     }
 }

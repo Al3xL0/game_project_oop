@@ -4,15 +4,13 @@ import java.awt.Color;
 import biuoop.DrawSurface;
 import biuoop.GUI;
 import biuoop.Sleeper;
-import org.w3c.dom.css.Rect;
 
-public class Ball {
+public class Ball implements Sprite  {
     private int radius;
     private Point center;
     private java.awt.Color color;
     private Velocity vel;
     private GameEnvironment gameEnv;
-    private Point lastCollision;
     // constructors
     public Ball(Point center, int r, java.awt.Color color) {
         this.center = center;
@@ -55,7 +53,7 @@ public class Ball {
     }
 
     public void moveOneStep() {
-        final double EPSILON = 1e-1;
+        final double EPSILON = 0.1;
 
         if (this.vel == null) {
             return;
@@ -67,7 +65,6 @@ public class Ball {
 
         if (collInfo != null) {
             Point collPoint = collInfo.collisionPoint();
-            System.out.println("col point: " + collPoint.getX() + ", " + collPoint.getY());
 
             Rectangle rect = collInfo.collisionObject().getCollisionRectangle();
             double blockLeft = rect.getUpperLeft().getX();
@@ -99,10 +96,9 @@ public class Ball {
             } else if (minDist == distToRight) {
                 xDir = radius + EPSILON;
             }
-
             this.center = new Point(collPoint.getX() + xDir, collPoint.getY() + yDir);
             this.vel = collInfo.collisionObject().hit(collPoint, vel);
-            System.out.println("vel" + vel.getDx() + "," + vel.getDy());
+
 
         } else {
             this.center = projectedCenter;
@@ -141,6 +137,18 @@ public class Ball {
         surface.setColor(this.color);
         surface.drawCircle(this.getX(), this.getY(), this.radius);
         surface.fillCircle(this.getX(), this.getY(), this.radius);
-    };
+    }
+
+    @Override
+    public void timePassed() {
+        moveOneStep();
+    }
+
+    @Override
+    public void addToGame(Game game) {
+        game.addSprite(this);
+    }
+
+    ;
 
 }

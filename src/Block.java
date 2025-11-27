@@ -3,7 +3,7 @@ import biuoop.DrawSurface;
 import java.awt.*;
 import java.util.Random;
 
-public class Block implements Collidable {
+public class Block implements Collidable, Sprite  {
     Rectangle shape;
     Color color;
     @Override
@@ -63,7 +63,20 @@ public class Block implements Collidable {
         height = (int) shape.getHeight();
         d.setColor(this.color);
         d.drawRectangle(x,y,width,height);
+        d.fillRectangle(x,y,width,height);
     }
+
+    @Override
+    public void timePassed() {
+        
+    }
+
+    @Override
+    public void addToGame(Game game) {
+        game.addCollidable(this);
+        game.addSprite(this);
+    }
+
     private Color generateRandomColor() {
         Random rand = new Random();
         float r,g,b;
