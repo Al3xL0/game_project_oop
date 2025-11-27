@@ -20,14 +20,17 @@ public class Block implements Collidable {
     }
     @Override
     public Velocity hit(Point collisionPoint, Velocity currentVelocity) {
+        double dx,dy;
+        dx = currentVelocity.getDx();
+        dy = currentVelocity.getDy();
         Line lines[] = shape.getLines();
         if(lines[0].isPointInLine(collisionPoint) || lines[1].isPointInLine(collisionPoint)) {
-            currentVelocity.setDx(-currentVelocity.getDx());
+            dy = -dy;
         }
         if(lines[2].isPointInLine(collisionPoint) || lines[3].isPointInLine(collisionPoint)) {
-            currentVelocity.setDy(-currentVelocity.getDy());
+            dx = -dx;
         }
-        return currentVelocity;
+        return new Velocity(dx,dy);
     }
 
     public void drawOn(DrawSurface d) {

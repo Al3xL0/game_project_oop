@@ -30,6 +30,7 @@ public class GameEnvironment {
                     if(trajectory.start().distance(point)<min) {
                         min=trajectory.start().distance(point);
                         colRes = c;
+                        res= point;
                     }
                 }
             }
@@ -37,7 +38,7 @@ public class GameEnvironment {
         if(colRes == null) {
             return null;
         }
-        return new CollisionInfo(trajectory, colRes);
+        return new CollisionInfo(trajectory, colRes, res);
     }
     public void drawWorld(DrawSurface d){
         for(Collidable collidable : collidables) {

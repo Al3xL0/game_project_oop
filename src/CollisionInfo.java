@@ -4,16 +4,16 @@ public class CollisionInfo {
     private Line line;
     private Collidable collidable;
     private Rectangle shape;
-    public CollisionInfo(Line line , Collidable collidable) {
+    private Point point;
+    public CollisionInfo(Line line , Collidable collidable, Point point) {
         this.line = line;
         this.collidable = collidable;
         this.shape = collidable.getCollisionRectangle();
+        this.point = point;
     }
     // the point at which the collision occurs.
     public Point collisionPoint() {
-        // shape.intersectionPoints should return only one element, because the line ends when it collides with the object
-        ArrayList<Point> points = (ArrayList<Point>) shape.intersectionPoints(line);
-        return points.get(0);
+        return this.point;
     }
 
     // the collidable object involved in the collision.

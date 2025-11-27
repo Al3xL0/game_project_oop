@@ -1,4 +1,6 @@
 import java.awt.Color;
+
+
 import biuoop.DrawSurface;
 import biuoop.GUI;
 import biuoop.Sleeper;
@@ -10,6 +12,7 @@ public class Ball {
     private java.awt.Color color;
     private Velocity vel;
     private GameEnvironment gameEnv;
+    private Collidable lastCollision;
     // constructors
     public Ball(Point center, int r, java.awt.Color color) {
         this.center = center;
@@ -52,42 +55,75 @@ public class Ball {
     }
 
     public void moveOneStep() {
-        // אם אין מהירות עדיין, אין מה לזוז
+        final double EPSILON = 1e-3;
+
         if (this.vel == null) {
             return;
         }
 
-        // הנקודה שהכדור היה מגיע אליה בלי התנגשות
         Point projectedCenter = this.vel.applyToPoint(this.center);
 
-        // המסלול מהמרכז הנוכחי לנקודה הבאה
         Line traj = new Line(this.center, projectedCenter);
 
-        // בודקים אם יש אובייקט בדרך
         CollisionInfo collInfo = gameEnv.getClosestCollision(traj);
 
-        // אין התנגשות – זזים כרגיל
-        if (collInfo == null) {
-            System.out.println("hey");
+        if (collInfo != null) {
+            if (lastCollision == collInfo.collisionObject()) {
+                this.center = projectedCenter;
+                return;
+            }
+            Point collPoint = collInfo.collisionPoint();
+            double dx = vel.getDx();
+            double dy = vel.getDy();
+            double xDir = 0, yDir = 0;
+            Rectangle rect = collInfo.collisionObject().getCollisionRectangle();
+            Line[] edges = rect.getLines();
+
+            boolean hitTopOrBottom =
+                    edges[0].isPointInLine(collPoint) ||
+                            edges[1].isPointInLine(collPoint);
+
+            boolean hitLeftOrRight =
+                    edges[2].isPointInLine(collPoint) ||
+                            edges[3].isPointInLine(collPoint);
+
+
+            double blockLeft   = rect.getUpperLeft().getX();
+            double blockRight  = blockLeft + rect.getWidth();
+            double blockTop    = rect.getUpperLeft().getY();
+            double blockBottom = blockTop + rect.getHeight();
+
+            double ballX = collPoint.getX();
+            double ballY = collPoint.getY();
+
+            if (hitTopOrBottom) {
+                if (ballY < blockTop) {
+                    yDir = -(radius + EPSILON);
+                } else {
+                    yDir = radius + EPSILON;
+                }
+            }
+
+            if (hitLeftOrRight) {
+                if (ballX < blockLeft) {
+                    xDir = -(radius + EPSILON);
+                } else {
+                    xDir = radius + EPSILON;
+                }
+            }
+
+            lastCollision = collInfo.collisionObject();
+            this.center = new Point(collPoint.getX() + xDir, collPoint.getY() + yDir);
+            this.vel = collInfo.collisionObject().hit(collPoint, vel);
+            System.out.println("vel" + vel.getDx() + "," + vel.getDy());
+        } else {
             this.center = projectedCenter;
-            return;
         }
 
-        // יש התנגשות – מטפלים בה
-        Point collisionPoint = collInfo.collisionPoint();
-
-        double dx = this.vel.getDx();
-        double dy = this.vel.getDy();
-        double epsilon = 0.0001; // מספר קטן מאוד
-
-        // ממקמים את המרכז קצת לפני נקודת הפגיעה (בכיוון ההפוך לצעד)
-        double newX = collisionPoint.getX() - dx * epsilon;
-        double newY = collisionPoint.getY() - dy * epsilon;
-        this.center = new Point(newX, newY);
-
-        // מעדכנים מהירות לפי האובייקט שפגענו בו
-        this.vel = collInfo.collisionObject().hit(collisionPoint, this.vel);
     }
+
+
+
     public void moveOneStep(int right, int bottom, int left, int top) {
         double nextX = center.getX() + vel.getDx();
         double nextY = center.getY() + vel.getDy();

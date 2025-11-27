@@ -8,7 +8,7 @@ public class Game {
             GUI gui = new GUI("title", 1800, 1700);
         GameEnvironment gameEnv = new GameEnvironment();
         Ball ball = new Ball(new Point(480/4,900/4),30, Color.black, gameEnv);
-        ball.setVelocity(new Velocity(2,2));
+        ball.setVelocity(new Velocity(2,10));
         generateBorders(gameEnv);
         while(true){
             DrawSurface d = gui.getDrawSurface();
