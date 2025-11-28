@@ -28,12 +28,16 @@ public class Game {
         // init the player
         biuoop.KeyboardSensor keyboard = gui.getKeyboardSensor();
         Paddle paddle = new Paddle(keyboard);
-
-        Ball ball = new Ball(new Point(140/4,140/4),5, Color.black, gameEnv);
-        ball.setVelocity(new Velocity(2,2));
         generateBorders(gameEnv);
+        initLevel();
+        Ball ball = new Ball(new Point(140/4,140/4),5, Color.black, gameEnv);
+        Ball ball2 = new Ball(new Point(580/4, 500/4),5, Color.black, gameEnv);
+        ball.setVelocity(new Velocity(2,2));
+        ball2.setVelocity(new Velocity(2,2));
+
         paddle.addToGame(this);
         ball.addToGame(this);
+        ball2.addToGame(this);
         this.sleeper = new Sleeper();
     }
 
@@ -70,6 +74,50 @@ public class Game {
         borders[3] = new Block(new Rectangle(new Point(780,0),20,600), Color.gray);
         for(Block block : borders) {
             block.addToGame(this);
+        }
+    }
+    private void initLevel() {
+        double startx = 80.0;
+        double starty = 100.0;
+        while(startx + 100 < 800) {
+            Block block = new Block(new Rectangle(new Point(startx,starty),100,20),Color.gray);
+            block.addToGame(this);
+            startx +=100;
+        }
+        startx = 180;
+        starty += 20;
+        while(startx + 100 <=780) {
+            Block block = new Block(new Rectangle(new Point(startx,starty),100,20),Color.green);
+            block.addToGame(this);
+            startx +=100;
+        }
+        startx = 280;
+        starty += 20;
+        while(startx + 100 <=780) {
+            Block block = new Block(new Rectangle(new Point(startx,starty),100,20),Color.red);
+            block.addToGame(this);
+            startx +=100;
+        }
+        startx = 380;
+        starty += 20;
+        while(startx + 100 <=780) {
+            Block block = new Block(new Rectangle(new Point(startx,starty),100,20),Color.yellow);
+            block.addToGame(this);
+            startx +=100;
+        }
+        startx = 480;
+        starty += 20;
+        while(startx + 100 <=780) {
+            Block block = new Block(new Rectangle(new Point(startx,starty),100,20),Color.white);
+            block.addToGame(this);
+            startx +=100;
+        }
+        startx = 580;
+        starty += 20;
+        while(startx + 100 <=780) {
+            Block block = new Block(new Rectangle(new Point(startx,starty),100,20),Color.cyan);
+            block.addToGame(this);
+            startx +=100;
         }
     }
 }

@@ -54,54 +54,54 @@ public class Ball implements Sprite  {
 
     public void moveOneStep() {
         final double EPSILON = 0.1;
+        int maxCollisions = 10; // Prevent infinite loops
 
-        if (this.vel == null) {
-            return;
-        }
+        for (int i = 0; i < maxCollisions; i++) {
+            Point projectedCenter = this.vel.applyToPoint(this.center);
+            Line traj = new Line(this.center, projectedCenter);
+            CollisionInfo collInfo = gameEnv.getClosestCollision(traj);
 
-        Point projectedCenter = this.vel.applyToPoint(this.center);
-        Line traj = new Line(this.center, projectedCenter);
-        CollisionInfo collInfo = gameEnv.getClosestCollision(traj);
+            if (collInfo != null) {
+                Point collPoint = collInfo.collisionPoint();
 
-        if (collInfo != null) {
-            Point collPoint = collInfo.collisionPoint();
+                Rectangle rect = collInfo.collisionObject().getCollisionRectangle();
+                double blockLeft = rect.getUpperLeft().getX();
+                double blockRight = blockLeft + rect.getWidth();
+                double blockTop = rect.getUpperLeft().getY();
+                double blockBottom = blockTop + rect.getHeight();
 
-            Rectangle rect = collInfo.collisionObject().getCollisionRectangle();
-            double blockLeft = rect.getUpperLeft().getX();
-            double blockRight = blockLeft + rect.getWidth();
-            double blockTop = rect.getUpperLeft().getY();
-            double blockBottom = blockTop + rect.getHeight();
+                double ballX = collPoint.getX();
+                double ballY = collPoint.getY();
 
-            double ballX = collPoint.getX();
-            double ballY = collPoint.getY();
+                double distToLeft = Math.abs(ballX - blockLeft);
+                double distToRight = Math.abs(ballX - blockRight);
+                double distToTop = Math.abs(ballY - blockTop);
+                double distToBottom = Math.abs(ballY - blockBottom);
 
-            // Calculate distance from collision point to each edge
-            double distToLeft = Math.abs(ballX - blockLeft);
-            double distToRight = Math.abs(ballX - blockRight);
-            double distToTop = Math.abs(ballY - blockTop);
-            double distToBottom = Math.abs(ballY - blockBottom);
+                double minDist = Math.min(Math.min(distToLeft, distToRight),
+                                          Math.min(distToTop, distToBottom));
 
-            // Find which edge was hit (closest distance)
-            double minDist = Math.min(Math.min(distToLeft, distToRight),
-                    Math.min(distToTop, distToBottom));
+                double xDir = 0, yDir = 0;
 
-            double xDir = 0, yDir = 0;
+                if (minDist == distToTop) {
+                    yDir = -(radius + EPSILON);
+                } else if (minDist == distToBottom) {
+                    yDir = radius + EPSILON;
+                } else if (minDist == distToLeft) {
+                    xDir = -(radius + EPSILON);
+                } else if (minDist == distToRight) {
+                    xDir = radius + EPSILON;
+                }
 
-            if (minDist == distToTop) {
-                yDir = -(radius + EPSILON);
-            } else if (minDist == distToBottom) {
-                yDir = radius + EPSILON;
-            } else if (minDist == distToLeft) {
-                xDir = -(radius + EPSILON);
-            } else if (minDist == distToRight) {
-                xDir = radius + EPSILON;
+                this.center = new Point(collPoint.getX() + xDir, collPoint.getY() + yDir);
+                this.vel = collInfo.collisionObject().hit(collPoint, vel);
+
+                // After handling, continue to check for more collisions in the same frame
+            } else {
+                // No collision, move normally
+                this.center = projectedCenter;
+                break;
             }
-            this.center = new Point(collPoint.getX() + xDir, collPoint.getY() + yDir);
-            this.vel = collInfo.collisionObject().hit(collPoint, vel);
-
-
-        } else {
-            this.center = projectedCenter;
         }
     }
 
