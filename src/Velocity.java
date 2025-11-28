@@ -8,8 +8,9 @@ public class Velocity {
         this.dy = dy;
     }
     public static Velocity fromAngleAndSpeed(double angle, double speed) {
-        double dx = angle;
-        double dy = speed;
+        double radians = Math.toRadians(angle);
+        double dx = speed * Math.sin(radians);
+        double dy = -speed * Math.cos(radians); // negative because "up" is negative y
         return new Velocity(dx, dy);
     }
     public double getDx() {

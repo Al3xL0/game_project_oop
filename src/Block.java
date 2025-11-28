@@ -64,6 +64,14 @@ public class Block implements Collidable, Sprite  {
         d.setColor(this.color);
         d.drawRectangle(x,y,width,height);
         d.fillRectangle(x,y,width,height);
+        Line lines[] = shape.getLines();
+        for(Line line : lines) {
+            Point start = line.start();
+            Point end = line.end();
+            d.setColor(Color.black);
+            d.drawLine((int) start.getX(), (int) start.getY(), (int) end.getX(), (int) end.getY());
+
+        }
     }
 
     @Override

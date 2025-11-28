@@ -56,6 +56,10 @@ public class Rectangle {
     public Point getUpperLeft() {
         return this.upperLeft;
     }
+    public void setUpperLeft(Point upperLeft) {
+        this.upperLeft = upperLeft;
+        initCorners();
+    }
     /**
      * @return this array contains upperLine (line[0]), downLine (line[1]) left and then right.
      */
@@ -73,4 +77,7 @@ public class Rectangle {
         downRight  = new Point(upperLeft.getX() + width, upperLeft.getY() + height);
     }
 
+    public Point getUpperRight() {
+        return upperRight;
+    }
 }

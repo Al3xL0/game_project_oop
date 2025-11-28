@@ -21,15 +21,19 @@ public class Game {
     // Initialize a new game: create the Blocks and Ball (and Paddle)
     // and add them to the game.
     public void initialize() {
+        // init gui, gameEnv and spriteCollection
         this.gui = new GUI("title", 800 , 600);
         this.gameEnv = new GameEnvironment();
         this.sprites = new SpriteCollection();
-        Ball ball = new Ball(new Point(140/4,140/4),10, Color.black, gameEnv);
+        // init the player
+        biuoop.KeyboardSensor keyboard = gui.getKeyboardSensor();
+        Paddle paddle = new Paddle(keyboard);
+
+        Ball ball = new Ball(new Point(140/4,140/4),5, Color.black, gameEnv);
         ball.setVelocity(new Velocity(2,2));
         generateBorders(gameEnv);
-        Block block = new Block(new Rectangle(new Point(200,500),200,20));
+        paddle.addToGame(this);
         ball.addToGame(this);
-        block.addToGame(this);
         this.sleeper = new Sleeper();
     }
 
@@ -42,6 +46,9 @@ public class Game {
             long startTime = System.currentTimeMillis(); // timing
 
             DrawSurface d = gui.getDrawSurface();
+            d.setColor(Color.blue);
+            d.drawRectangle(0,0,800,600);
+            d.fillRectangle(0,0,800,600);
             this.sprites.drawAllOn(d);
             gui.show(d);
             this.sprites.notifyAllTimePassed();
@@ -57,10 +64,10 @@ public class Game {
 
     private void generateBorders(GameEnvironment gameEnv) {
         Block[] borders = new Block[4];
-        borders[0] = new Block(new Rectangle(new Point(0,0),800 ,20), Color.black);
-        borders[1] = new Block(new Rectangle(new Point(0,0),20,600), Color.black);
-        borders[2] = new Block(new Rectangle(new Point(0,580),800,20),Color.black);
-        borders[3] = new Block(new Rectangle(new Point(780,0),20,600), Color.black);
+        borders[0] = new Block(new Rectangle(new Point(0,0),800 ,20), Color.gray);
+        borders[1] = new Block(new Rectangle(new Point(0,0),20,600), Color.gray);
+        borders[2] = new Block(new Rectangle(new Point(0,580),800,20),Color.gray);
+        borders[3] = new Block(new Rectangle(new Point(780,0),20,600), Color.gray);
         for(Block block : borders) {
             block.addToGame(this);
         }
