@@ -1,3 +1,5 @@
+package gui;
+
 import biuoop.DrawSurface;
 
 public interface Sprite {

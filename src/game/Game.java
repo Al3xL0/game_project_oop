@@ -1,6 +1,13 @@
+package gui;
+
 import biuoop.DrawSurface;
 import biuoop.GUI;
 import biuoop.Sleeper;
+import geometry.Point;
+import shapes.Ball;
+import shapes.Block;
+import shapes.Collidable;
+
 import java.awt.*;
 
 public class Game {
@@ -18,7 +25,7 @@ public class Game {
         sprites.addSprite(s);
     }
 
-    // Initialize a new game: create the Blocks and Ball (and Paddle)
+    // Initialize a new game: create the Blocks and shapes.Ball (and gui.Paddle)
     // and add them to the game.
     public void initialize() {
         // init gui, gameEnv and spriteCollection
@@ -30,8 +37,8 @@ public class Game {
         Paddle paddle = new Paddle(keyboard);
         generateBorders(gameEnv);
         initLevel();
-        Ball ball = new Ball(new Point(140/4,140/4),5, Color.black, gameEnv);
-        Ball ball2 = new Ball(new Point(580/4, 500/4),5, Color.black, gameEnv);
+        Ball ball = new Ball(new geometry.Point(140/4,140/4),5, Color.black, gameEnv);
+        Ball ball2 = new Ball(new geometry.Point(580/4, 500/4),5, Color.black, gameEnv);
         ball.setVelocity(new Velocity(2,2));
         ball2.setVelocity(new Velocity(2,2));
 
@@ -68,10 +75,10 @@ public class Game {
 
     private void generateBorders(GameEnvironment gameEnv) {
         Block[] borders = new Block[4];
-        borders[0] = new Block(new Rectangle(new Point(0,0),800 ,20), Color.gray);
-        borders[1] = new Block(new Rectangle(new Point(0,0),20,600), Color.gray);
-        borders[2] = new Block(new Rectangle(new Point(0,580),800,20),Color.gray);
-        borders[3] = new Block(new Rectangle(new Point(780,0),20,600), Color.gray);
+        borders[0] = new Block(new Rectangle(new geometry.Point(0,0),800 ,20), Color.gray);
+        borders[1] = new Block(new Rectangle(new geometry.Point(0,0),20,600), Color.gray);
+        borders[2] = new Block(new Rectangle(new geometry.Point(0,580),800,20),Color.gray);
+        borders[3] = new Block(new Rectangle(new geometry.Point(780,0),20,600), Color.gray);
         for(Block block : borders) {
             block.addToGame(this);
         }
@@ -80,21 +87,21 @@ public class Game {
         double startx = 80.0;
         double starty = 100.0;
         while(startx + 100 < 800) {
-            Block block = new Block(new Rectangle(new Point(startx,starty),100,20),Color.gray);
+            Block block = new Block(new Rectangle(new geometry.Point(startx,starty),100,20),Color.gray);
             block.addToGame(this);
             startx +=100;
         }
         startx = 180;
         starty += 20;
         while(startx + 100 <=780) {
-            Block block = new Block(new Rectangle(new Point(startx,starty),100,20),Color.green);
+            Block block = new Block(new Rectangle(new geometry.Point(startx,starty),100,20),Color.green);
             block.addToGame(this);
             startx +=100;
         }
         startx = 280;
         starty += 20;
         while(startx + 100 <=780) {
-            Block block = new Block(new Rectangle(new Point(startx,starty),100,20),Color.red);
+            Block block = new Block(new Rectangle(new geometry.Point(startx,starty),100,20),Color.red);
             block.addToGame(this);
             startx +=100;
         }
@@ -108,14 +115,14 @@ public class Game {
         startx = 480;
         starty += 20;
         while(startx + 100 <=780) {
-            Block block = new Block(new Rectangle(new Point(startx,starty),100,20),Color.white);
+            Block block = new Block(new Rectangle(new geometry.Point(startx,starty),100,20),Color.white);
             block.addToGame(this);
             startx +=100;
         }
         startx = 580;
         starty += 20;
         while(startx + 100 <=780) {
-            Block block = new Block(new Rectangle(new Point(startx,starty),100,20),Color.cyan);
+            Block block = new Block(new Rectangle(new geometry.Point(startx,starty),100,20),Color.cyan);
             block.addToGame(this);
             startx +=100;
         }

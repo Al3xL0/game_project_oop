@@ -1,4 +1,6 @@
-import java.util.ArrayList;
+import geometry.Line;
+import geometry.Point;
+import shapes.Collidable;
 
 public class CollisionInfo {
     private Line line;

@@ -1,4 +1,9 @@
+package gui;
+
 import biuoop.DrawSurface;
+import geometry.Line;
+import geometry.Point;
+import shapes.Collidable;
 
 import java.util.ArrayList;
 
@@ -29,7 +34,7 @@ public class GameEnvironment {
                 double distToStart = trajectory.start().distance(point);
                 double trajectoryLength = trajectory.length();
                 
-                // Point must be between start and end of trajectory
+                // geometry.Point must be between start and end of trajectory
                 if(distToStart > 1e-6 && distToStart < trajectoryLength && distToStart < min) {
                     min = distToStart;
                     colRes = c;

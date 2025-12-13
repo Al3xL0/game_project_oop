@@ -1,5 +1,10 @@
+package gui;
+
 import biuoop.DrawSurface;
 import biuoop.KeyboardSensor;
+import geometry.Line;
+import geometry.Point;
+import shapes.Collidable;
 
 import java.awt.*;
 
@@ -9,16 +14,16 @@ public class Paddle implements Sprite, Collidable {
     private Color color;
     private double speed;
     public void moveLeft() {
-        Point temp = shape.getUpperLeft();
+        geometry.Point temp = shape.getUpperLeft();
         double x = temp.getX();
         double y = temp.getY();
-        temp = new Point(x-speed,y);
+        temp = new geometry.Point(x-speed,y);
         if(temp.getX() >= 20) {
             shape.setUpperLeft(temp);
         }
     }
     public void moveRight() {
-        Point temp = shape.getUpperLeft();
+        geometry.Point temp = shape.getUpperLeft();
         double x = temp.getX();
         double y = temp.getY();
         temp = new Point(x+speed,y);
@@ -29,12 +34,12 @@ public class Paddle implements Sprite, Collidable {
     public Paddle(biuoop.KeyboardSensor keyboard) {
         this.keyboard = keyboard;
         this.color = Color.yellow;
-        shape = new Rectangle(new Point(30,560),100,20);
+        shape = new Rectangle(new geometry.Point(30,560),100,20);
         speed = 4.0;
 
     }
 
-    // Sprite
+    // gui.Sprite
     public void timePassed() {
         if(keyboard.isPressed("a") || keyboard.isPressed(KeyboardSensor.LEFT_KEY)) {
            moveLeft();
@@ -54,14 +59,14 @@ public class Paddle implements Sprite, Collidable {
         d.fillRectangle(x,y,width,height);
         Line lines[] = shape.getLines();
         for(Line line : lines) {
-            Point start = line.start();
-            Point end = line.end();
+            geometry.Point start = line.start();
+            geometry.Point end = line.end();
             d.setColor(Color.black);
             d.drawLine((int) start.getX(), (int) start.getY(), (int) end.getX(), (int) end.getY());
 
         }
     }
-    // Collidable
+    // shapes.Collidable
     public Rectangle getCollisionRectangle() {
         return this.shape;
     }
@@ -71,7 +76,7 @@ public class Paddle implements Sprite, Collidable {
         height : 20
      */
     @Override
-    public Velocity hit(Point collisionPoint, Velocity currentVelocity) {
+    public Velocity hit(geometry.Point collisionPoint, Velocity currentVelocity) {
         double paddleLeft = this.shape.getUpperLeft().getX();
         double regionWidth = this.shape.getWidth() / 5;
         double hitX = collisionPoint.getX();
@@ -113,7 +118,7 @@ public class Paddle implements Sprite, Collidable {
         g.addSprite(this);
         g.addCollidable(this);
     }
-    private int pickRegion(Point point) {
+    private int pickRegion(geometry.Point point) {
         int res =0;
         int x = (int) point.getX();
         if (x <= 20) {

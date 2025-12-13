@@ -1,4 +1,5 @@
 import biuoop.DrawSurface;
+import geometry.Point;
 
 public interface Collidable {
     // Return the "collision shape" of the object.
