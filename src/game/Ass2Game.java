@@ -1,4 +1,4 @@
-package gui;
+package game;
 
 public class Ass2Game {
     public static void main(String[] args) {

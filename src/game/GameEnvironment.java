@@ -1,10 +1,8 @@
-package gui;
+package game;
 
 import biuoop.DrawSurface;
-import geometry.Line;
-import geometry.Point;
+import geometry.*;
 import shapes.Collidable;
-
 import java.util.ArrayList;
 
 public class GameEnvironment {
@@ -13,6 +11,9 @@ public class GameEnvironment {
     // add the given collidable to the environment.
     public void addCollidable(Collidable c) {
         collidables.add(c);
+    }
+    public void removeCollidable(Collidable c) {
+        collidables.remove(c);
     }
     public GameEnvironment() {
 

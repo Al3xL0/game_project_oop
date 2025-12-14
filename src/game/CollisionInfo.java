@@ -1,5 +1,6 @@
-import geometry.Line;
-import geometry.Point;
+package game;
+
+import geometry.*;
 import shapes.Collidable;
 
 public class CollisionInfo {

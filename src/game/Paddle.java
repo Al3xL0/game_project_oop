@@ -1,12 +1,13 @@
-package gui;
+package game;
 
 import biuoop.DrawSurface;
 import biuoop.KeyboardSensor;
-import geometry.Line;
-import geometry.Point;
+import geometry.*;
+
+import shapes.Ball;
 import shapes.Collidable;
 
-import java.awt.*;
+import java.awt.Color;
 
 public class Paddle implements Sprite, Collidable {
     private biuoop.KeyboardSensor keyboard;
@@ -76,7 +77,7 @@ public class Paddle implements Sprite, Collidable {
         height : 20
      */
     @Override
-    public Velocity hit(geometry.Point collisionPoint, Velocity currentVelocity) {
+    public Velocity hit(Ball hitter, geometry.Point collisionPoint, Velocity currentVelocity) {
         double paddleLeft = this.shape.getUpperLeft().getX();
         double regionWidth = this.shape.getWidth() / 5;
         double hitX = collisionPoint.getX();

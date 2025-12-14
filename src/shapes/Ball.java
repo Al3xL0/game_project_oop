@@ -1,11 +1,10 @@
-import java.awt.Color;
-
-
+package shapes;
+import geometry.*;
+import game.GameEnvironment;
 import biuoop.DrawSurface;
-import biuoop.GUI;
-import biuoop.Sleeper;
+import game.*;
 
-public class Ball implements Sprite  {
+public class Ball implements Sprite {
     private int radius;
     private Point center;
     private java.awt.Color color;
@@ -55,6 +54,8 @@ public class Ball implements Sprite  {
     public void moveOneStep() {
         final double EPSILON = 0.1;
         int maxCollisions = 10; // Prevent infinite loops
+        // Define borders (adjust as needed)
+        int left = 0, right = 800, top = 0, bottom = 600;
 
         for (int i = 0; i < maxCollisions; i++) {
             Point projectedCenter = this.vel.applyToPoint(this.center);
@@ -94,14 +95,38 @@ public class Ball implements Sprite  {
                 }
 
                 this.center = new Point(collPoint.getX() + xDir, collPoint.getY() + yDir);
-                this.vel = collInfo.collisionObject().hit(collPoint, vel);
-
+                this.vel = collInfo.collisionObject().hit(this, collPoint, vel);
                 // After handling, continue to check for more collisions in the same frame
             } else {
                 // No collision, move normally
                 this.center = projectedCenter;
                 break;
             }
+        }
+        // Border collision handling (after all block collisions)
+        double nextX = center.getX();
+        double nextY = center.getY();
+        boolean borderHit = false;
+        if (nextX + radius > right) {
+            nextX = right - radius;
+            vel.setDx(-Math.abs(vel.getDx()));
+            borderHit = true;
+        } else if (nextX - radius < left) {
+            nextX = left + radius;
+            vel.setDx(Math.abs(vel.getDx()));
+            borderHit = true;
+        }
+        if (nextY + radius > bottom) {
+            nextY = bottom - radius;
+            vel.setDy(-Math.abs(vel.getDy()));
+            borderHit = true;
+        } else if (nextY - radius < top) {
+            nextY = top + radius;
+            vel.setDy(Math.abs(vel.getDy()));
+            borderHit = true;
+        }
+        if (borderHit) {
+            center = new Point(nextX, nextY);
         }
     }
 

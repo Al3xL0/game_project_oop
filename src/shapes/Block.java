@@ -1,26 +1,44 @@
+package shapes;
+
 import biuoop.DrawSurface;
-
-import java.awt.*;
+import game.events.PrintingHitListener;
+import geometry.*;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import game.Sprite;
+import game.Game;
+import game.events.HitNotifier;
+import game.events.HitListener;
 
-public class Block implements Collidable, Sprite  {
+public class Block implements Collidable, Sprite, HitNotifier {
     Rectangle shape;
     Color color;
+    boolean isBorder;
+    private List<HitListener> hitListeners;
     @Override
     public Rectangle getCollisionRectangle() {
         return shape;
     }
-    public Block(Rectangle rec) {
-        this.shape = rec;
-        this.color = generateRandomColor();
-    }
+
     public Block(Rectangle rec, Color color){
         this.shape = rec;
         this.color = color;
+        this.isBorder =false;
+        hitListeners = new ArrayList<>();
+    }
+    public Block(Rectangle rec, Color color, boolean isBorder){
+        this.shape = rec;
+        this.color = color;
+        this.isBorder =isBorder;
+        hitListeners = new ArrayList<>();
+
     }
     @Override
-    public Velocity hit(Point collisionPoint, Velocity currentVelocity) {
+    public Velocity hit(Ball hitter, Point collisionPoint, Velocity currentVelocity) {
         Rectangle rect = this.getCollisionRectangle();
+        Velocity res;
         double blockLeft = rect.getUpperLeft().getX();
         double blockRight = blockLeft + rect.getWidth();
         double blockTop = rect.getUpperLeft().getY();
@@ -42,17 +60,20 @@ public class Block implements Collidable, Sprite  {
             // Use velocity direction as tiebreaker for corners
         if (Math.abs(distToLeft - distToRight) < 1e-3) {
             // Hitting left or right - reverse X
-            return new Velocity(-currentVelocity.getDx(), currentVelocity.getDy());
+            res = new Velocity(-currentVelocity.getDx(), currentVelocity.getDy());
         } else if (Math.abs(distToTop - distToBottom) < 1e-3) {
             // Hitting top or bottom - reverse Y
-            return new Velocity(currentVelocity.getDx(), -currentVelocity.getDy());
+            res = new Velocity(currentVelocity.getDx(), -currentVelocity.getDy());
         } else if (minDist == distToLeft || minDist == distToRight) {
             // Hit left or right wall - reverse X velocity
-            return new Velocity(-currentVelocity.getDx(), currentVelocity.getDy());
+            res = new Velocity(-currentVelocity.getDx(), currentVelocity.getDy());
         } else {
             // Hit top or bottom wall - reverse Y velocity
-            return new Velocity(currentVelocity.getDx(), -currentVelocity.getDy());
+            res = new Velocity(currentVelocity.getDx(), -currentVelocity.getDy());
         }
+
+        this.notifyHit(hitter);
+        return res;
     }
 
     public void drawOn(DrawSurface d) {
@@ -92,5 +113,36 @@ public class Block implements Collidable, Sprite  {
         g = rand.nextFloat();
         b = rand.nextFloat();
         return new Color(r,g,b);
+    }
+
+    public void removeFromGame(Game g) {
+        if(!isBorder) {
+            g.removeCollidable(this);
+            g.removeSprite(this);
+        }
+    }
+
+    private void notifyHit(Ball hitter) {
+        // Make a copy of the hitListeners before iterating over them.
+        List<HitListener> listeners = new ArrayList<HitListener>(this.hitListeners);
+        // Notify all listeners about a hit event:
+        if(listeners.isEmpty()) {
+            return;
+        }
+        for (HitListener hl : listeners) {
+            hl.hitEvent(this, hitter);
+        }
+    }
+    public boolean getIsBorder() {
+        return isBorder;
+    }
+    @Override
+    public void addHitListener(HitListener hl) {
+        hitListeners.add(hl);
+    }
+
+    @Override
+    public void removeHitListener(HitListener hl) {
+        hitListeners.remove(hl);
     }
 }

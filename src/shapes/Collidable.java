@@ -1,5 +1,7 @@
+package shapes;
+
 import biuoop.DrawSurface;
-import geometry.Point;
+import geometry.*;
 
 public interface Collidable {
     // Return the "collision shape" of the object.
@@ -9,7 +11,7 @@ public interface Collidable {
     // a given velocity.
     // The return is the new velocity expected after the hit (based on
     // the force the object inflicted on us).
-    Velocity hit(Point collisionPoint, Velocity currentVelocity);
+    Velocity hit(Ball hitter, Point collisionPoint, Velocity currentVelocity);
 
     public void drawOn(DrawSurface d);
 }

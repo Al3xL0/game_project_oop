@@ -1,5 +1,4 @@
-import geometry.Line;
-import geometry.Point;
+package geometry;
 
 import java.util.ArrayList;
 import java.util.List;

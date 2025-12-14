@@ -1,4 +1,4 @@
-package gui;
+package game;
 
 import biuoop.DrawSurface;
 

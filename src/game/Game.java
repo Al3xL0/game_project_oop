@@ -1,20 +1,24 @@
-package gui;
+package game;
 
 import biuoop.DrawSurface;
 import biuoop.GUI;
 import biuoop.Sleeper;
-import geometry.Point;
-import shapes.Ball;
-import shapes.Block;
-import shapes.Collidable;
+import game.events.BlockRemover;
+import game.events.Counter;
+import geometry.*;
+import shapes.*;
 
-import java.awt.*;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Game {
     private SpriteCollection sprites;
     private GameEnvironment gameEnv;
     private Sleeper sleeper;
     private GUI gui;
+    private Counter counter;
+    private BlockRemover blockRemover;
     public Game() {
         initialize();
     }
@@ -32,6 +36,8 @@ public class Game {
         this.gui = new GUI("title", 800 , 600);
         this.gameEnv = new GameEnvironment();
         this.sprites = new SpriteCollection();
+        this.counter = new Counter(); // counter starts with 0!
+        this.blockRemover = new BlockRemover(this,counter);
         // init the player
         biuoop.KeyboardSensor keyboard = gui.getKeyboardSensor();
         Paddle paddle = new Paddle(keyboard);
@@ -70,15 +76,19 @@ public class Game {
             if (milliSecondLeftToSleep > 0) {
                 sleeper.sleepFor(milliSecondLeftToSleep);
             }
+            if(counter.getValue() == 0) {
+                break;
+            }
         }
+        gui.close();
     }
 
     private void generateBorders(GameEnvironment gameEnv) {
         Block[] borders = new Block[4];
-        borders[0] = new Block(new Rectangle(new geometry.Point(0,0),800 ,20), Color.gray);
-        borders[1] = new Block(new Rectangle(new geometry.Point(0,0),20,600), Color.gray);
-        borders[2] = new Block(new Rectangle(new geometry.Point(0,580),800,20),Color.gray);
-        borders[3] = new Block(new Rectangle(new geometry.Point(780,0),20,600), Color.gray);
+        borders[0] = new Block(new Rectangle(new geometry.Point(0,0),800 ,20), Color.gray, true);
+        borders[1] = new Block(new Rectangle(new geometry.Point(0,0),20,600), Color.gray, true);
+        borders[2] = new Block(new Rectangle(new geometry.Point(0,580),800,20),Color.gray, true);
+        borders[3] = new Block(new Rectangle(new geometry.Point(780,0),20,600), Color.gray, true);
         for(Block block : borders) {
             block.addToGame(this);
         }
@@ -86,9 +96,11 @@ public class Game {
     private void initLevel() {
         double startx = 80.0;
         double starty = 100.0;
+        List<Block> blockList = new ArrayList<>();
         while(startx + 100 < 800) {
             Block block = new Block(new Rectangle(new geometry.Point(startx,starty),100,20),Color.gray);
             block.addToGame(this);
+            blockList.add(block);
             startx +=100;
         }
         startx = 180;
@@ -96,6 +108,7 @@ public class Game {
         while(startx + 100 <=780) {
             Block block = new Block(new Rectangle(new geometry.Point(startx,starty),100,20),Color.green);
             block.addToGame(this);
+            blockList.add(block);
             startx +=100;
         }
         startx = 280;
@@ -103,6 +116,7 @@ public class Game {
         while(startx + 100 <=780) {
             Block block = new Block(new Rectangle(new geometry.Point(startx,starty),100,20),Color.red);
             block.addToGame(this);
+            blockList.add(block);
             startx +=100;
         }
         startx = 380;
@@ -110,6 +124,7 @@ public class Game {
         while(startx + 100 <=780) {
             Block block = new Block(new Rectangle(new Point(startx,starty),100,20),Color.yellow);
             block.addToGame(this);
+            blockList.add(block);
             startx +=100;
         }
         startx = 480;
@@ -117,6 +132,7 @@ public class Game {
         while(startx + 100 <=780) {
             Block block = new Block(new Rectangle(new geometry.Point(startx,starty),100,20),Color.white);
             block.addToGame(this);
+            blockList.add(block);
             startx +=100;
         }
         startx = 580;
@@ -124,7 +140,20 @@ public class Game {
         while(startx + 100 <=780) {
             Block block = new Block(new Rectangle(new geometry.Point(startx,starty),100,20),Color.cyan);
             block.addToGame(this);
+            blockList.add(block);
             startx +=100;
         }
+        for(Block block : blockList) {
+            counter.increase(1);
+            block.addHitListener(this.blockRemover);
+        }
+    }
+
+    // the following two methods will help us to delete an object from the game
+    public void removeCollidable(Collidable c){
+        gameEnv.removeCollidable(c);
+    }
+    public void removeSprite(Sprite s) {
+        sprites.removeSprite(s);
     }
 }

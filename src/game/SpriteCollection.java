@@ -1,8 +1,9 @@
-package gui;
+package game;
 
 import biuoop.DrawSurface;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SpriteCollection {
     private ArrayList<Sprite> sprites;
@@ -13,10 +14,13 @@ public class SpriteCollection {
     public void addSprite(Sprite s) {
         sprites.add(s);
     }
-
+    public void removeSprite(Sprite s) {
+        sprites.remove(s);
+    }
     // call timePassed() on all sprites.
     public void notifyAllTimePassed() {
-        for(Sprite sprite : sprites) {
+        List<Sprite> copy = new ArrayList<>(sprites);
+        for(Sprite sprite : copy) {
             sprite.timePassed();
         }
 
