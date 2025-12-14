@@ -36,7 +36,7 @@ public class GameEnvironment {
                 double trajectoryLength = trajectory.length();
                 
                 // geometry.Point must be between start and end of trajectory
-                if(distToStart > 1e-6 && distToStart < trajectoryLength && distToStart < min) {
+                if(distToStart >=0 && distToStart < trajectoryLength && distToStart < min) {
                     min = distToStart;
                     colRes = c;
                     res = point;

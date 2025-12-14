@@ -3,6 +3,7 @@ package game;
 import biuoop.DrawSurface;
 import biuoop.GUI;
 import biuoop.Sleeper;
+import game.events.BallRemover;
 import game.events.BlockRemover;
 import game.events.Counter;
 import geometry.*;
@@ -17,8 +18,16 @@ public class Game {
     private GameEnvironment gameEnv;
     private Sleeper sleeper;
     private GUI gui;
-    private Counter counter;
+    // tracking the status of blocks in the game
+    private Counter blockCounter;
     private BlockRemover blockRemover;
+
+    // tracking the status of balls in the game
+    private Counter ballCounter;
+    private BallRemover ballRemover;
+    // track the bottom border inorder to remove balls
+    private Block bottomBorder;
+
     public Game() {
         initialize();
     }
@@ -36,21 +45,34 @@ public class Game {
         this.gui = new GUI("title", 800 , 600);
         this.gameEnv = new GameEnvironment();
         this.sprites = new SpriteCollection();
-        this.counter = new Counter(); // counter starts with 0!
-        this.blockRemover = new BlockRemover(this,counter);
+
+        // counter and remover for blocks
+        this.blockCounter = new Counter();
+        this.blockRemover = new BlockRemover(this, blockCounter);
+
+        // counter and remover for balls
+        this.ballCounter = new Counter();
+        ballCounter.increase(3);
+        this.ballRemover = new BallRemover(this,  ballCounter);
         // init the player
         biuoop.KeyboardSensor keyboard = gui.getKeyboardSensor();
         Paddle paddle = new Paddle(keyboard);
         generateBorders(gameEnv);
         initLevel();
-        Ball ball = new Ball(new geometry.Point(140/4,140/4),5, Color.black, gameEnv);
-        Ball ball2 = new Ball(new geometry.Point(580/4, 500/4),5, Color.black, gameEnv);
+        Ball ball = new Ball(new geometry.Point(850/2,1800/4),5, Color.black, gameEnv, this.bottomBorder);
+        Ball ball2 = new Ball(new geometry.Point(800/2, 1800/4),5, Color.black, gameEnv, this.bottomBorder);
+        Ball ball3 = new Ball(new geometry.Point(700/2, 1800/4),5, Color.black, gameEnv, this.bottomBorder);
         ball.setVelocity(new Velocity(2,2));
         ball2.setVelocity(new Velocity(2,2));
+        ball3.setVelocity(new Velocity(2,2));
 
         paddle.addToGame(this);
         ball.addToGame(this);
         ball2.addToGame(this);
+        ball3.addToGame(this);
+        ball.addHitListener(ballRemover);
+        ball2.addHitListener(ballRemover);
+        ball3.addHitListener(ballRemover);
         this.sleeper = new Sleeper();
     }
 
@@ -76,7 +98,7 @@ public class Game {
             if (milliSecondLeftToSleep > 0) {
                 sleeper.sleepFor(milliSecondLeftToSleep);
             }
-            if(counter.getValue() == 0) {
+            if(blockCounter.getValue() == 0 || ballCounter.getValue() == 0) {
                 break;
             }
         }
@@ -89,6 +111,7 @@ public class Game {
         borders[1] = new Block(new Rectangle(new geometry.Point(0,0),20,600), Color.gray, true);
         borders[2] = new Block(new Rectangle(new geometry.Point(0,580),800,20),Color.gray, true);
         borders[3] = new Block(new Rectangle(new geometry.Point(780,0),20,600), Color.gray, true);
+        this.bottomBorder = borders[2];
         for(Block block : borders) {
             block.addToGame(this);
         }
@@ -144,7 +167,7 @@ public class Game {
             startx +=100;
         }
         for(Block block : blockList) {
-            counter.increase(1);
+            blockCounter.increase(1);
             block.addHitListener(this.blockRemover);
         }
     }

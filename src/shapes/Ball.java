@@ -1,26 +1,35 @@
 package shapes;
+import game.events.HitListener;
+import game.events.HitNotifier;
 import geometry.*;
 import game.GameEnvironment;
 import biuoop.DrawSurface;
 import game.*;
 
-public class Ball implements Sprite {
+import java.util.ArrayList;
+import java.util.List;
+
+public class Ball implements Sprite , HitNotifier {
     private int radius;
     private Point center;
     private java.awt.Color color;
     private Velocity vel;
     private GameEnvironment gameEnv;
+    private List<HitListener> hitListeners;
+    private Block bottomBorder;
     // constructors
     public Ball(Point center, int r, java.awt.Color color) {
         this.center = center;
         this.radius = r;
         this.color = color;
     }
-    public Ball(Point center, int r, java.awt.Color color, GameEnvironment gameEnvironment) {
+    public Ball(Point center, int r, java.awt.Color color, GameEnvironment gameEnvironment, Block bottomBorder) {
         this.center = center;
         this.radius = r;
         this.color = color;
         this.gameEnv = gameEnvironment;
+        this.bottomBorder = bottomBorder;
+        hitListeners = new ArrayList<>();
     }
     public Ball(double x, double y, int r, java.awt.Color color){
         this.center = new Point(x,y);
@@ -52,8 +61,8 @@ public class Ball implements Sprite {
     }
 
     public void moveOneStep() {
-        final double EPSILON = 0.1;
-        int maxCollisions = 10; // Prevent infinite loops
+        final double EPSILON = 0.3;
+        int maxCollisions = 100; // Prevent infinite loops
         // Define borders (adjust as needed)
         int left = 0, right = 800, top = 0, bottom = 600;
 
@@ -66,6 +75,7 @@ public class Ball implements Sprite {
                 Point collPoint = collInfo.collisionPoint();
 
                 Rectangle rect = collInfo.collisionObject().getCollisionRectangle();
+
                 double blockLeft = rect.getUpperLeft().getX();
                 double blockRight = blockLeft + rect.getWidth();
                 double blockTop = rect.getUpperLeft().getY();
@@ -96,6 +106,9 @@ public class Ball implements Sprite {
 
                 this.center = new Point(collPoint.getX() + xDir, collPoint.getY() + yDir);
                 this.vel = collInfo.collisionObject().hit(this, collPoint, vel);
+                if(collInfo.collisionObject() == bottomBorder) {
+                    notifyHit();
+                }
                 // After handling, continue to check for more collisions in the same frame
             } else {
                 // No collision, move normally
@@ -106,6 +119,7 @@ public class Ball implements Sprite {
         // Border collision handling (after all block collisions)
         double nextX = center.getX();
         double nextY = center.getY();
+        boolean isBottomBorder = false; // check if the border that was hitten is the bottom one
         boolean borderHit = false;
         if (nextX + radius > right) {
             nextX = right - radius;
@@ -120,6 +134,7 @@ public class Ball implements Sprite {
             nextY = bottom - radius;
             vel.setDy(-Math.abs(vel.getDy()));
             borderHit = true;
+            isBottomBorder = true;
         } else if (nextY - radius < top) {
             nextY = top + radius;
             vel.setDy(Math.abs(vel.getDy()));
@@ -127,6 +142,10 @@ public class Ball implements Sprite {
         }
         if (borderHit) {
             center = new Point(nextX, nextY);
+        }
+        if(isBottomBorder) {
+            System.out.println("hit bottom");
+            this.notifyHit();
         }
     }
 
@@ -174,6 +193,28 @@ public class Ball implements Sprite {
         game.addSprite(this);
     }
 
-    ;
+    public void removeFromGame(Game game) {
+        game.removeSprite(this);
+    }
+    @Override
+    public void addHitListener(HitListener hl) {
+        hitListeners.add(hl);
+    }
+
+    @Override
+    public void removeHitListener(HitListener hl) {
+        hitListeners.remove(hl);
+    }
+
+    void notifyHit() {
+        List<HitListener> listeners = new ArrayList<HitListener>(this.hitListeners);
+        // Notify all listeners about a hit event:
+        if(listeners.isEmpty()) {
+            return;
+        }
+        for (HitListener hl : listeners) {
+            hl.hitEvent(bottomBorder, this);
+        }
+    }
 
 }

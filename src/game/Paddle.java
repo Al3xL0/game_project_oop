@@ -35,7 +35,7 @@ public class Paddle implements Sprite, Collidable {
     public Paddle(biuoop.KeyboardSensor keyboard) {
         this.keyboard = keyboard;
         this.color = Color.yellow;
-        shape = new Rectangle(new geometry.Point(30,560),100,20);
+        shape = new Rectangle(new geometry.Point(200,560),100,20);
         speed = 4.0;
 
     }
